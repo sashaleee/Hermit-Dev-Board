@@ -195,9 +195,7 @@ void loop() { audioHook(); }
 ////// SECOND CORE //////
 void setup1() {
   ////// UART //////
-#if (DEBUGGING == ON)
   UART.begin(115200);
   UART.println("OK");
-#endif
 }
 void loop1() { USB_MIDI.read(); }

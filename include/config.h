@@ -2,12 +2,6 @@
 #define CONFIG_H_
 #include <Arduino.h>
 
-#define ON 1
-#define OFF 0
-
-#define DEBUGGING ON
-#define DEFAULT_SETTING OFF
-
 ////// CONSTANTS //////
 enum ButtonNames { BUTTON_A, BUTTON_B, BUTTON_C, BUTTON_D, BUTTONS_NUM };
 enum PotNames { POT_A, POT_B, POT_C, POTS_NUM };
