@@ -5,14 +5,15 @@
 Setup instructions:
 0. Install VS Code and PlatformIO
 
-1. Put Mozzi-1.1.1 in lib folder
+1. Get Mozzi-1.1.1 library from
+https://github.com/sensorium/Mozzi/releases/tag/1.1.1 and put it in lib folder.
 
-2. In AudioConfigRP2040.h:
+2. In AudioConfigRP2040.h (/lib/Mozzi-1.1.1):
   #define RP2040_AUDIO_OUT_MODE PWM_VIA_BARE_CHIP
   #define AUDIO_CHANNEL_1_PIN 2
   #define AUDIO_CHANNEL_2_PIN 3
 
-3. In mozzi_config.h:
+3. In mozzi_config.h (/lib/Mozzi-1.1.1):
  #define AUDIO_CHANNELS STEREO
 
 */
@@ -31,13 +32,13 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, TRS_MIDI);
 SerialPIO UART(SERIAL_TX_PIN, SERIAL_RX_PIN, 128);
 #endif
 
-int aRate;
-int bRate;
-int bDepth;
-int cRate;
-int cDepth;
-int balanceA;
-int balanceB;
+int16_t rateA;
+int16_t rateB;
+int16_t depthB;
+int16_t rateC;
+int16_t depthC;
+int16_t balanceA;
+int16_t balanceB;
 
 uint8_t page;
 
@@ -77,7 +78,7 @@ void setup() {
     buttons[i].begin(BUTTON_PINS[i]);
     buttons[i].update();
   }
-  for (int i = 0; i < POTS_NUM; i++) {
+  for (int8_t i = 0; i < POTS_NUM; i++) {
     pots[i].begin(POTS_PINS[i]);
   }
   ////// LED SETUP //////
@@ -86,11 +87,6 @@ void setup() {
   EEPROM.begin(1024);
   ////// MOZZI //////
   startMozzi(CONTROL_RATE);
-  ////// UART //////
-#if (DEBUGGING == ON)
-  UART.begin(115200);
-  UART.println("OK");
-#endif
 }
 
 void updateControl() {
@@ -119,18 +115,18 @@ void updateControl() {
       case BUTTON_B:
         if (state == Button::PRESS) {
           ////// RANDOMIZE PAGE A //////
-          aRate = mtof(26 + ((int)random(128) >> 1)); // aRate
-          bRate = random(128) << 1;                   // bRate
-          bDepth = random(64);                        // bDepth
+          rateA = mtof((int)map(random(128), 0, 127, 26, 120)); // 26..90
+          rateB = map(random(128), 0, 127, 0, 255);             // 0..255
+          depthB = random(256);                                 // 0..127
           ledA.blink();
         }
         break;
       case BUTTON_C:
         if (state == Button::PRESS) {
           ////// RANDOMIZE PAGE B //////
-          cRate = random(128) >> 1;    // cRate
-          cDepth = random(128) >> 2;   // cDepth // 1
-          balanceA = random(128) >> 5; // balanceA/B
+          rateC = map(random(128), 0, 127, 0, 63);   // 0..63
+          depthC = map(random(128), 0, 127, 0, 31);  // 0..31
+          balanceA = map(random(128), 0, 127, 0, 3); // 0..3
           balanceB = 3 - balanceA;
           ledA.blink();
         }
@@ -141,7 +137,7 @@ void updateControl() {
     }
   }
   ////// POTS //////
-  for (int i = 0; i < POTS_NUM; i++) {
+  for (int8_t i = 0; i < POTS_NUM; i++) {
     if (pots[i].update()) {
       uint8_t CCvalue = pots[i].getValue();
       USB_MIDI.sendControlChange(potsCC[i], CCvalue, USB_MIDI_CHANNEL);
@@ -149,24 +145,24 @@ void updateControl() {
       switch (i) {
       case 0:
         if (page == 0) {
-          aRate = mtof(26 + (CCvalue >> 1)); // aRate
+          rateA = mtof((int)map(CCvalue, 0, 127, 26, 120)); // 26..90
         } else {
-          cRate = CCvalue >> 1; // cRate
+          rateC = map(CCvalue, 0, 127, 0, 63); // 0..63
         }
         break;
       case 1:
         if (page == 0) {
-          bRate = CCvalue << 1; // bRate
+          rateB = map(CCvalue, 0, 127, 0, 255); // 0..255
         } else {
-          cDepth = CCvalue >> 2; // cDepth // 1
+          depthC = map(CCvalue, 0, 127, 0, 31); // 0..31
         }
         break;
       case 2:
         if (page == 0) {
-          bDepth = CCvalue; // bDepth
+          depthB = map(CCvalue, 0, 127, 0, 255); // 0..127
         } else {
-          balanceA = CCvalue >> 5; // balanceA/B
-          balanceB = 3 - balanceA;
+          balanceA = map(CCvalue, 0, 127, 0, 3); // 0..3
+          balanceB = 3 - balanceA;               // 3..0
         }
         break;
       }
@@ -176,17 +172,18 @@ void updateControl() {
   ledA.update();
   ledB.update();
   ////// UPDATE FREQUENCIES //////
-  operatorA.setFreq(aRate);
-  operatorB.setFreq(bRate);
-  operatorC.setFreq(cRate);
+  operatorA.setFreq(rateA);
+  operatorB.setFreq(rateB);
+  operatorC.setFreq(rateC);
 }
+////// AUDIO OUTPUT //////
 AudioOutput_t updateAudio() {
   int16_t l;
   int16_t r;
-  operatorB.setFreq(bRate + (operatorC.next() * cDepth * balanceB));
-  operatorA.setFreq(aRate + (operatorB.next() * bDepth) +
-                        (operatorC.next() * cDepth * balanceA) >>
-                    1);
+  operatorB.setFreq(rateB + (operatorC.next() * depthC * balanceB));
+  operatorA.setFreq(rateA + (operatorB.next() * depthB) +
+                        (operatorC.next() * depthC * balanceA) >>
+                    2);
   l = operatorA.next();
   r = l;
   // return StereoOutput::fromAlmostNBit(AUDIO_BITS, l, r);
@@ -195,5 +192,12 @@ AudioOutput_t updateAudio() {
 
 void loop() { audioHook(); }
 
-void setup1() {}
+////// SECOND CORE //////
+void setup1() {
+  ////// UART //////
+#if (DEBUGGING == ON)
+  UART.begin(115200);
+  UART.println("OK");
+#endif
+}
 void loop1() { USB_MIDI.read(); }
