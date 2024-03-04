@@ -124,10 +124,10 @@ void updateControl() {
       case BUTTON_C:
         if (state == Button::PRESS) {
           ////// RANDOMIZE PAGE B //////
-          rateC = map(random(128), 0, 127, 0, 63);   // 0..63
+          rateC = map(random(128), 0, 127, 0, 16);   // 0..63
           depthC = map(random(128), 0, 127, 0, 31);  // 0..31
-          balanceA = map(random(128), 0, 127, 0, 3); // 0..3
-          balanceB = 3 - balanceA;
+          balanceA = map(random(128), 0, 127, 0, 8); // 0..3
+          balanceB = 8 - balanceA;
           ledA.blink();
         }
         break;
@@ -147,7 +147,7 @@ void updateControl() {
         if (page == 0) {
           rateA = mtof((int)map(CCvalue, 0, 127, 26, 120)); // 26..90
         } else {
-          rateC = map(CCvalue, 0, 127, 0, 63); // 0..63
+          rateC = map(CCvalue, 0, 127, 0, 16); // 0..63
         }
         break;
       case 1:
@@ -161,8 +161,8 @@ void updateControl() {
         if (page == 0) {
           depthB = map(CCvalue, 0, 127, 0, 255); // 0..127
         } else {
-          balanceA = map(CCvalue, 0, 127, 0, 3); // 0..3
-          balanceB = 3 - balanceA;               // 3..0
+          balanceA = map(CCvalue, 0, 127, 0, 8); // 0..3
+          balanceB = 8 - balanceA;               // 3..0
         }
         break;
       }
