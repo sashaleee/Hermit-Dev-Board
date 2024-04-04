@@ -9,6 +9,7 @@ const uint8_t USB_MIDI_CHANNEL = 1;
 const uint8_t TRS_MIDI_CHANNEL = 1;
 const uint8_t buttonsCC[BUTTONS_NUM] = {100, 101, 102, 103};
 const uint8_t potsCC[POTS_NUM] = {40, 41, 42};
+const uint16_t EEPROM_SIZE = 1024;
 
 ////// PINS CONFIG //////
 const uint8_t BUTTON_PINS[BUTTONS_NUM] = {15, 14, 11, 18};

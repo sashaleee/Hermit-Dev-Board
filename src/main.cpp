@@ -94,12 +94,16 @@ void setup() {
   }
   ////// LED SETUP //////
   ledA.inverted = true;
-  ////// EEPROM //////
-  EEPROM.begin(1024);
+  ////// EEPROM SETUP //////
+  EEPROM.begin(EEPROM_SIZE);
+  for (uint16_t i = 0; i < EEPROM_SIZE; i++) {
+    // read your data here
+    EEPROM.read(i);
+  }
   ////// MOZZI //////
   startMozzi(CONTROL_RATE);
 }
-
+////// READ BUTTONS AND POTENTIOMETERS //////
 void updateControl() {
   ////// BUTTONS //////
   for (uint8_t i = 0; i < BUTTONS_NUM; i++) {
