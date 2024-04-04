@@ -21,4 +21,4 @@ https://github.com/sensorium/Mozzi/releases/tag/1.1.1 and put it in lib folder.
 #define AUDIO_CHANNELS STEREO
  ```
 ### Schematic (without MIDI I/O and UART) ###
-![schematic.](https://github.com/sashaleee/Hermit-Dev-Board/blob/main/Breadboard%20Hermit_2024-04-03.png)
+![schematic](https://github.com/sashaleee/Hermit-Dev-Board/blob/main/Breadboard%20Hermit_2024-04-03.png)
