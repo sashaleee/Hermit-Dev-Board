@@ -11,7 +11,6 @@ const uint8_t buttonsCC[BUTTONS_NUM] = {100, 101, 102, 103};
 const uint8_t potsCC[POTS_NUM] = {40, 41, 42};
 
 ////// PINS CONFIG //////
-// AUDIO OUT PINS: 2, 3
 const uint8_t BUTTON_PINS[BUTTONS_NUM] = {15, 14, 11, 18};
 const uint8_t POTS_PINS[POTS_NUM] = {A2, A1, A0};
 const uint8_t LED_A_PIN = 8;      // LED pin
@@ -20,12 +19,4 @@ const uint8_t MIDI_TX_PIN = 12;   // MIDI out pin
 const uint8_t MIDI_RX_PIN = 13;   // MIDI in pin
 const uint8_t SERIAL_TX_PIN = 17; // UART TX pin
 const uint8_t SERIAL_RX_PIN = 16; // UART RX pin
-const uint8_t SYNC_PIN = 19;
-
-// const uint8_t SAMPLES_NUM = 8;
-// const uint8_t NUM_TABLES = 28;
-// const uint16_t SAMPLE_LENGTH = 22050; //
-// const uint16_t SAMPLE_RATE = 32768;
-// const float SAMPLE_PITCH = (float)SAMPLE_RATE / SAMPLE_LENGTH;
-
 #endif
